@@ -1,0 +1,205 @@
+  <!DOCTYPE html>
+  <html lang="zh">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>改进的语义保留中文打乱器</title>
+      <style>
+          /* 样式保持不变 */
+          body, html {
+              margin: 0;
+              padding: 0;
+              min-height: 100%;
+              font-family: Arial, sans-serif;
+              color: #e0e0e0;
+              overflow-y: auto;
+          }
+          #background {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background-size: cover;
+              background-position: center;
+              filter: brightness(0.7);
+              z-index: -1;
+              transition: background-image 1s ease-in-out;
+          }
+          .container {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              min-height: 100vh;
+              padding: 20px;
+              box-sizing: border-box;
+          }
+          .content {
+              background-color: rgba(42, 42, 42, 0.8);
+              padding: 20px;
+              border-radius: 8px;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+              width: 90%;
+              max-width: 600px;
+              position: relative;
+              margin-bottom: 20px;
+          }
+          h1 {
+              text-align: center;
+              color: #ffffff;
+          }
+          textarea {
+              width: 100%;
+              height: 150px;
+              padding: 10px;
+              margin: 10px 0;
+              font-size: 16px;
+              border: 1px solid #444;
+              border-radius: 4px;
+              resize: vertical;
+              background-color: rgba(51, 51, 51, 0.8);
+              color: #e0e0e0;
+          }
+          button {
+              width: 100%;
+              padding: 10px;
+              background-color: #4CAF50;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 16px;
+              margin-bottom: 10px;
+          }
+          button:hover {
+              background-color: #45a049;
+          }
+          #result {
+              margin-top: 10px;
+              font-size: 16px;
+              white-space: pre-wrap;
+              word-wrap: break-word;
+              background-color: rgba(51, 51, 51, 0.8);
+              padding: 15px;
+              border-radius: 4px;
+              border: 1px solid #444;
+              max-height: 300px;
+              overflow-y: auto;
+          }
+          .result-container {
+              position: relative;
+              margin-top: 20px;
+          }
+          #copyButton {
+              width: auto;
+              padding: 5px 10px;
+              font-size: 14px;
+              margin-bottom: 5px;
+              background-color: #555;
+          }
+          #copyButton:hover {
+              background-color: #666;
+          }
+          .copyright {
+              text-align: center;
+              margin-top: 20px;
+              font-size: 14px;
+              color: #888;
+          }
+      </style>
+  </head>
+  <body>
+      <div id="background"></div>
+      <div class="container">
+          <div class="content">
+              <h1>改进的语义保留中文打乱器</h1>
+              <textarea id="input" placeholder="请输入中文文本..."></textarea>
+              <button onclick="scrambleText()">打乱文本</button>
+              <div class="result-container">
+                  <button id="copyButton" onclick="copyResult()" style="display: none;">复制结果</button>
+                  <div id="result"></div>
+              </div>
+              <div class="copyright">© 2024 作者：caoQian</div>
+          </div>
+      </div>
+      <script>
+          const backgroundImages = [
+              'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+              'https://images.unsplash.com/photo-1511884642898-4c92249e20b6',
+              'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
+              'https://images.unsplash.com/photo-1502082553048-f009c37129b9',
+              'https://images.unsplash.com/photo-1505144808419-1957a94ca61e',
+              'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05',
+              'https://images.unsplash.com/photo-1501854140801-50d01698950b',
+              'https://images.unsplash.com/photo-1441974231531-c6227db76b6e',
+              'https://images.unsplash.com/photo-1523712999610-f77fbcfc3843',
+              'https://images.unsplash.com/photo-1536152470836-b943b246224c'
+          ];
+
+          function scrambleText() {
+              const input = document.getElementById('input').value;
+              const sentences = input.split(/([。！？，、；：\n])/);
+              const scrambledSentences = sentences.map(sentence => {
+                  if (sentence.length <= 5) return sentence; // 保护短句和标点符号
+                  return scrambleSentence(sentence);
+              });
+              const result = scrambledSentences.join('');
+              document.getElementById('result').textContent = result;
+              document.getElementById('copyButton').style.display = 'block';
+          }
+
+          function scrambleSentence(sentence) {
+              const headLength = sentence.length >= 6 ? 3 : 2; // 对于较长的句子，保留前3个字
+              const head = sentence.slice(0, headLength);
+              const tail = sentence.slice(-2);
+              const middle = sentence.slice(headLength, -2);
+              
+              if (middle.length <= 2) return sentence; // 如果中间部分太短，不进行打乱
+              
+              const scrambledMiddle = scrambleChars(Array.from(middle));
+              return head + scrambledMiddle.join('') + tail;
+          }
+
+          function scrambleChars(chars) {
+              const charsToScramble = Math.floor(chars.length * 0.3); // 只打乱30%的字符
+              for (let i = 0; i < charsToScramble; i++) {
+                  const index1 = Math.floor(Math.random() * chars.length);
+                  const index2 = Math.floor(Math.random() * chars.length);
+                  [chars[index1], chars[index2]] = [chars[index2], chars[index1]];
+              }
+              return chars;
+          }
+
+          function copyResult() {
+              const result = document.getElementById('result').textContent;
+              navigator.clipboard.writeText(result).then(() => {
+                  alert('结果已复制到剪贴板！');
+              }).catch(err => {
+                  console.error('复制失败: ', err);
+                  alert('复制失败，请手动复制。');
+              });
+          }
+
+          function changeBackground() {
+              const randomIndex = Math.floor(Math.random() * backgroundImages.length);
+              const imageUrl = backgroundImages[randomIndex];
+              const backgroundElement = document.getElementById('background');
+              
+              const img = new Image();
+              img.onload = function() {
+                  backgroundElement.style.backgroundImage = `url('${imageUrl}')`;
+              };
+              img.src = imageUrl;
+          }
+
+          // 页面加载时设置初始背景
+          window.onload = function() {
+              changeBackground();
+              // 每60秒自动更换一次背景
+              setInterval(changeBackground, 60000);
+          };
+      </script>
+  </body>
+  </html>
+`
