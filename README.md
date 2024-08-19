@@ -6,3 +6,6 @@
 
 只打乱句子中间的部分内容
 控制打乱的比例，只打乱30%的字符
+
+访问以下网址即可试用：
+https://desility.github.io/ChineseScrambler/
